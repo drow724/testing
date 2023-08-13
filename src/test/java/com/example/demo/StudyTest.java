@@ -1,6 +1,8 @@
 package com.example.demo;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.time.Duration;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -17,8 +19,42 @@ public class StudyTest {
 	@Test
 	@DisplayName("스터디 만들기")
 	void create_new_study() {
-		Study study = new Study();
-		assertNotNull(study);
+		Study study = new Study(10);
+		assertAll(() -> assertNotNull(study),
+			//Supplier로 넘기면 Lazy 연산
+			() -> assertEquals(StudyStatus.DRAFT, study.getStatus()
+					, () -> "스터디를 처음 만들면 상태값이 " + StudyStatus.DRAFT + "상태다."),
+			() -> assertTrue(study.getLimit() > 0, "스터디 최대 참석 가능 인원은 0보다 커야한다.")
+		);
+	}
+	
+	@Test
+	@DisplayName("스터디 만들기 with AssertJ")
+	void create_new_study_with_AssertJ() {
+		Study study = new Study(10);
+		org.assertj.core.api.Assertions.assertThat(study.getLimit()).isGreaterThan(0);
+	}
+	
+	@Test
+	@DisplayName("스터디 참여 인원은 0보다 커야한다.")
+	void limit_validation() {
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Study(-10));
+		String message = exception.getMessage();
+		assertEquals("limit은 0보다 커야 한다.", message);
+	}
+	
+	@Test
+	@DisplayName("타임아웃 테스트")
+	void timeout() {
+//		assertTimeout(Duration.ofMillis(100), () -> {
+//			new Study(10);
+//			Thread.sleep(300L);
+//		});
+		//별도의 쓰레드에서 테스트하기 때문에 ThreadLocal사용 여부 판단 ex) Spring Security, @Transational
+//		assertTimeoutPreemptively(Duration.ofMillis(100), () -> {
+//			new Study(10);
+//			Thread.sleep(300L);
+//		});
 	}
 	
 	@Test
