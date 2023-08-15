@@ -11,10 +11,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -37,17 +40,20 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StudyTest {
 
 	int value = 0;
 	
 	@Test
+	@Order(1)
 	@DisplayName("스터디 만들기 instance1")
 	void create_study_instance1() {
 		System.out.println("creat1 " + value++);
 	}
 	
 	@Test
+	@Order(2)
 	@DisplayName("스터디 만들기 instance2")
 	void create_study_instance2() {
 		System.out.println("creat2 " + value++);
