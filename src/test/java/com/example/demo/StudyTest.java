@@ -1,8 +1,8 @@
 package com.example.demo;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import java.time.Duration;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -12,12 +12,37 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledOnJre;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.condition.OS;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class StudyTest {
 
 	@Test
 	@DisplayName("스터디 만들기")
+	@EnabledOnJre({JRE.JAVA_17})
+	@EnabledOnOs(OS.WINDOWS)
+	void create_new_study_assume() {
+		assumeTrue("LOCAL".equalsIgnoreCase(System.getenv("TEST_ENV")));
+		
+		Study actual = new Study(10);
+		org.assertj.core.api.Assertions.assertThat(actual.getLimit()).isGreaterThan(0);
+		
+		
+		assumingThat("LOCAL".equalsIgnoreCase(System.getenv("TEST_ENV")), () -> {
+			Study study = new Study(10);
+			org.assertj.core.api.Assertions.assertThat(study.getLimit()).isGreaterThan(0);
+		});
+		
+	}
+	
+	@Test
+	@DisplayName("다시 스터디 만들기")
+	@EnabledOnOs({OS.WINDOWS, OS.LINUX})
+	@EnabledIfEnvironmentVariable(named = "TEST_ENV", matches = "local")
 	void create_new_study() {
 		Study study = new Study(10);
 		assertAll(() -> assertNotNull(study),
@@ -55,12 +80,6 @@ public class StudyTest {
 //			new Study(10);
 //			Thread.sleep(300L);
 //		});
-	}
-	
-	@Test
-	@DisplayName("다시 스터디 만들기")
-	void create_new_study_again() {
-		System.out.println("create1");
 	}
 	
 	@BeforeAll
