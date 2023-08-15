@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -35,8 +36,23 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class StudyTest {
 
+	int value = 0;
+	
+	@Test
+	@DisplayName("스터디 만들기 instance1")
+	void create_study_instance1() {
+		System.out.println("creat1 " + value++);
+	}
+	
+	@Test
+	@DisplayName("스터디 만들기 instance2")
+	void create_study_instance2() {
+		System.out.println("creat2 " + value++);
+	}
+	
 	@DisplayName("스터디 만들기 반복")
 	@RepeatedTest(value = 10, name = "{displayName}, {currentRepetition}/{totalRepetitions}")
 	void repeat_create_new_study(RepetitionInfo repetitionInfo) {
@@ -166,12 +182,12 @@ public class StudyTest {
 	}
 	
 	@BeforeAll
-	static void beforeAll() {
+	void beforeAll() {
 		System.out.println("before all");
 	}
 	
 	@AfterAll
-	static void afterAll() {
+	void afterAll() {
 		System.out.println("after all");
 	}
 	
