@@ -22,8 +22,7 @@ import org.junit.jupiter.api.condition.OS;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class StudyTest {
 
-	@Test
-	@Tag("fast")
+	@FastTest
 	@DisplayName("스터디 만들기")
 	@EnabledOnJre({JRE.JAVA_17})
 	@EnabledOnOs(OS.WINDOWS)
@@ -41,8 +40,7 @@ public class StudyTest {
 		
 	}
 	
-	@Test
-	@Tag("slow")
+	@SlowTest
 	@DisplayName("다시 스터디 만들기")
 	@EnabledOnOs({OS.WINDOWS, OS.LINUX})
 	@EnabledIfEnvironmentVariable(named = "TEST_ENV", matches = "local")
