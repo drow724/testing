@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledOnJre;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.condition.OS;
 public class StudyTest {
 
 	@Test
+	@Tag("fast")
 	@DisplayName("스터디 만들기")
 	@EnabledOnJre({JRE.JAVA_17})
 	@EnabledOnOs(OS.WINDOWS)
@@ -40,6 +42,7 @@ public class StudyTest {
 	}
 	
 	@Test
+	@Tag("slow")
 	@DisplayName("다시 스터디 만들기")
 	@EnabledOnOs({OS.WINDOWS, OS.LINUX})
 	@EnabledIfEnvironmentVariable(named = "TEST_ENV", matches = "local")
