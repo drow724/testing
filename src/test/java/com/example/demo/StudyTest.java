@@ -40,6 +40,9 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import me.whiteship.inflearnthejavatest.domain.Study;
+import me.whiteship.inflearnthejavatest.domain.StudyStatus;
+
 //선언적인 Extension 사용
 //@ExtendWith(FindSlowTestExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -95,7 +98,7 @@ public class StudyTest {
 	@ValueSource(ints = { 10, 20, 40 })
 	@CsvSource({ "10, '자바 스터디'", "20, '스프링 스터디'" })
 	void parameterizedTestWithConverter(@ConvertWith(StudyConverter.class) Study study) {
-		System.out.println(study.getLimit());
+		System.out.println(study.getLimitCount());
 	}
 
 	static class StudyConverter extends SimpleArgumentConverter {
@@ -149,11 +152,11 @@ public class StudyTest {
 		assumeTrue("LOCAL".equalsIgnoreCase(System.getenv("TEST_ENV")));
 
 		Study actual = new Study(10);
-		org.assertj.core.api.Assertions.assertThat(actual.getLimit()).isGreaterThan(0);
+		org.assertj.core.api.Assertions.assertThat(actual.getLimitCount()).isGreaterThan(0);
 
 		assumingThat("LOCAL".equalsIgnoreCase(System.getenv("TEST_ENV")), () -> {
 			Study study = new Study(10);
-			org.assertj.core.api.Assertions.assertThat(study.getLimit()).isGreaterThan(0);
+			org.assertj.core.api.Assertions.assertThat(study.getLimitCount()).isGreaterThan(0);
 		});
 
 	}
@@ -168,14 +171,14 @@ public class StudyTest {
 				// Supplier로 넘기면 Lazy 연산
 				() -> assertEquals(StudyStatus.DRAFT, study.getStatus(),
 						() -> "스터디를 처음 만들면 상태값이 " + StudyStatus.DRAFT + "상태다."),
-				() -> assertTrue(study.getLimit() > 0, "스터디 최대 참석 가능 인원은 0보다 커야한다."));
+				() -> assertTrue(study.getLimitCount() > 0, "스터디 최대 참석 가능 인원은 0보다 커야한다."));
 	}
 
 	@Test
 	@DisplayName("스터디 만들기 with AssertJ")
 	void create_new_study_with_AssertJ() {
 		Study study = new Study(10);
-		org.assertj.core.api.Assertions.assertThat(study.getLimit()).isGreaterThan(0);
+		org.assertj.core.api.Assertions.assertThat(study.getLimitCount()).isGreaterThan(0);
 	}
 
 	@Test
