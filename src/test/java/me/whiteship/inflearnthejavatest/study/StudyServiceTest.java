@@ -9,9 +9,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.never;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -123,5 +126,39 @@ public class StudyServiceTest {
 		
 
 		verifyNoMoreInteractions(memberService);
+	}
+	
+	@DisplayName("should~~")
+	@Test
+	void behaviorDrivenDevelopement(@Mock MemberService memberService, @Mock StudyRepository studyRepository) {
+		//Given
+		StudyService studyService = new StudyService(memberService, studyRepository);
+		assertNotNull(studyService);
+		
+		Member member = new Member();
+		member.setId(1L);
+		member.setEmail("keesun@email.com");
+		
+		//when(memberService.findById(1L)).thenReturn(Optional.of(member));
+		given(memberService.findById(1L)).willReturn(Optional.of(member));
+		
+		Study study = new Study(10, "테스트");
+		
+		//when(studyRepository.save(study)).thenReturn(study);
+		given(studyRepository.save(study)).willReturn(study);
+		
+		//When
+		studyService.createNewStudy(1L, study);
+		
+		//Then
+		assertEquals(member.getId(), study.getOwnerId());
+		
+		//verify(memberService, times(1)).notify(study);
+		then(memberService).should(times(1)).notify(study);
+		
+		//verify(memberService, times(1)).notify(member);
+		then(memberService).should(times(1)).notify(member);
+		
+		then(memberService).shouldHaveNoMoreInteractions();
 	}
 }
