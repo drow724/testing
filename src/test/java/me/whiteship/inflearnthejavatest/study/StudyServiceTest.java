@@ -63,4 +63,25 @@ public class StudyServiceTest {
 		
 		studyService.createNewStudy(1L, study);
 	}
+	
+	@Test
+	void stubbingQuiz(@Mock MemberService memberService, @Mock StudyRepository studyRepository) {
+		StudyService studyService = new StudyService(memberService, studyRepository);
+		assertNotNull(studyService);
+		
+		Member member = new Member();
+		member.setId(1L);
+		member.setEmail("keesun@email.com");
+		
+		when(memberService.findById(1L)).thenReturn(Optional.of(member));
+		
+		Study study = new Study(10, "테스트");
+		
+		when(studyRepository.save(study)).thenReturn(study);
+		
+		studyService.createNewStudy(1L, study);
+		
+		assertNotNull(study.getOwnerId());
+		assertEquals(member.getId(), study.getOwnerId());
+	}
 }
