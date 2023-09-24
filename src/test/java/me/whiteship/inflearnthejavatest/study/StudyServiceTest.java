@@ -4,11 +4,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -40,6 +46,9 @@ public class StudyServiceTest {
 
 		Study study = new Study(10, "Java");
 		
+
+		studyService.createNewStudy(1L, study);
+		
 		assertEquals("keesun@email.com", memberService.findById(1L).get().getEmail());
 		assertEquals("keesun@email.com", memberService.findById(2L).get().getEmail());
 		
@@ -60,8 +69,7 @@ public class StudyServiceTest {
 		});
 		
 		assertTrue(memberService.findById(1L).isEmpty());
-		
-		studyService.createNewStudy(1L, study);
+	
 	}
 	
 	@Test
@@ -83,5 +91,37 @@ public class StudyServiceTest {
 		
 		assertNotNull(study.getOwnerId());
 		assertEquals(member.getId(), study.getOwnerId());
+	}
+	
+	@Test
+	void verifying(@Mock MemberService memberService, @Mock StudyRepository studyRepository) {
+		StudyService studyService = new StudyService(memberService, studyRepository);
+		assertNotNull(studyService);
+		
+		Member member = new Member();
+		member.setId(1L);
+		member.setEmail("keesun@email.com");
+		
+		when(memberService.findById(1L)).thenReturn(Optional.of(member));
+		
+		Study study = new Study(10, "테스트");
+		
+		when(studyRepository.save(study)).thenReturn(study);
+		
+		studyService.createNewStudy(1L, study);
+		
+		assertEquals(member.getId(), study.getOwnerId());
+		
+		verify(memberService, times(1)).notify(member);
+		verify(memberService, times(1)).notify(study);
+		verify(memberService, never()).validate(any());
+		
+		InOrder inOrder = inOrder(memberService);
+		
+		inOrder.verify(memberService).notify(study);
+		inOrder.verify(memberService).notify(member);
+		
+
+		verifyNoMoreInteractions(memberService);
 	}
 }
