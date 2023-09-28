@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,24 +26,33 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import lombok.extern.slf4j.Slf4j;
 import me.whiteship.inflearnthejavatest.domain.Member;
 import me.whiteship.inflearnthejavatest.domain.Study;
 import me.whiteship.inflearnthejavatest.domain.StudyStatus;
 import me.whiteship.inflearnthejavatest.member.MemberService;
 
+@Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
 @Testcontainers
 @ExtendWith(MockitoExtension.class)
 public class StudyServiceTest {
+	
+	//static Logger LOGGER = LoggerFactory.getLogger(StudyServiceTest.class);
 	
 	@Mock
 	MemberService memberService;
@@ -51,10 +61,23 @@ public class StudyServiceTest {
 	StudyRepository studyRepository;
 	
 	@Container
-	static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:9.6.12")).withDatabaseName("studytest");
+	static GenericContainer<?> postgreSQLContainer = new GenericContainer<>(DockerImageName.parse("postgres"))
+			.withExposedPorts(5432)
+			.withEnv("POSTGRES_HOST_AUTH_METHOD", "trust")
+			.withEnv("POSTGRES_DB", "studytest")
+			.waitingFor(Wait.forListeningPort());
+			//.waitingFor(Wait.forHttp("/hello"))
+	
+	@BeforeAll
+	static void beforeAll() {
+		Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(log);
+		postgreSQLContainer.followOutput(logConsumer);
+	}
 	
 	@BeforeEach
 	void beforeEach() {
+		System.out.println("mapped port = " + postgreSQLContainer.getMappedPort(5432));
+		System.out.println(postgreSQLContainer.getLogs());
 		studyRepository.deleteAll();
 	}
 	
