@@ -16,6 +16,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -35,6 +36,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -53,7 +55,7 @@ import me.whiteship.inflearnthejavatest.member.MemberService;
 @ActiveProfiles("test")
 @Testcontainers
 @ExtendWith(MockitoExtension.class)
-@ContextConfiguration(initializers = StudyServiceTest.ContainerPropertyInitializer.class)
+//@ContextConfiguration(initializers = StudyServiceTest.ContainerPropertyInitializer.class)
 public class StudyServiceTest {
 	
 	//static Logger LOGGER = LoggerFactory.getLogger(StudyServiceTest.class);
@@ -64,38 +66,43 @@ public class StudyServiceTest {
 	@Autowired
 	StudyRepository studyRepository;
 	
-	@Autowired
-	Environment environment;
+//	@Autowired
+//	Environment environment;
+//
+//	@Value("${container.port}")
+//	int port;
 	
-	@Value("${container.port}")
-	int port;
-	
-	@Container
-	static GenericContainer<?> postgreSQLContainer = new GenericContainer<>(DockerImageName.parse("postgres"))
-			.withExposedPorts(5432)
-			.withEnv("POSTGRES_HOST_AUTH_METHOD", "trust")
-			.withEnv("POSTGRES_DB", "studytest")
-			//.withEnv("POSTGRES_PASSWORD", "studytest")
-			.waitingFor(Wait.forListeningPort());
-			//.waitingFor(Wait.forHttp("/hello"))
+//	@Container
+//	static GenericContainer<?> postgreSQLContainer = new GenericContainer<>(DockerImageName.parse("postgres"))
+//			.withExposedPorts(5432)
+//			.withEnv("POSTGRES_HOST_AUTH_METHOD", "trust")
+//			.withEnv("POSTGRES_DB", "studytest")
+//			//.withEnv("POSTGRES_PASSWORD", "studytest")
+//			.waitingFor(Wait.forListeningPort());
+//			//.waitingFor(Wait.forHttp("/hello"))
 
-	static {
-		postgreSQLContainer.start();
-	}
+	@Container
+	static DockerComposeContainer<?> composeContainer =
+			new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"));
+
+//
+//	static {
+//		postgreSQLContainer.start();
+//	}
 	
-	@BeforeAll
-	static void beforeAll() {
-		Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(log);
-		postgreSQLContainer.followOutput(logConsumer);
-	}
-	
-	@BeforeEach
-	void beforeEach() {
-		System.out.println("mapped port = " + environment.getProperty("container.port"));
-		System.out.println("port = " + port);
-		System.out.println(postgreSQLContainer.getLogs());
-		studyRepository.deleteAll();
-	}
+//	@BeforeAll
+//	static void beforeAll() {
+//		Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(log);
+//		postgreSQLContainer.followOutput(logConsumer);
+//	}
+//
+//	@BeforeEach
+//	void beforeEach() {
+//		System.out.println("mapped port = " + environment.getProperty("container.port"));
+//		System.out.println("port = " + port);
+//		System.out.println(postgreSQLContainer.getLogs());
+//		studyRepository.deleteAll();
+//	}
 	
 	@Test
 	void createStudyService(@Mock MemberService memberService, @Mock StudyRepository studyRepository) {
@@ -253,12 +260,12 @@ public class StudyServiceTest {
 		then(memberService).should(times(1)).notify(study);
 	}
 	
-	static class ContainerPropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-		@Override
-		public void initialize(ConfigurableApplicationContext applicationContext) {
-			TestPropertyValues.of("container.port=" + postgreSQLContainer.getMappedPort(5432)).applyTo(applicationContext);
-		}
-		
-	}
+//	static class ContainerPropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+//
+//		@Override
+//		public void initialize(ConfigurableApplicationContext applicationContext) {
+//			TestPropertyValues.of("container.port=" + postgreSQLContainer.getMappedPort(5432)).applyTo(applicationContext);
+//		}
+//
+//	}
 }
