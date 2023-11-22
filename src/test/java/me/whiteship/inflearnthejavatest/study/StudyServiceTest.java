@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.util.Optional;
 
+import org.junit.ClassRule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -55,7 +56,7 @@ import me.whiteship.inflearnthejavatest.member.MemberService;
 @ActiveProfiles("test")
 @Testcontainers
 @ExtendWith(MockitoExtension.class)
-//@ContextConfiguration(initializers = StudyServiceTest.ContainerPropertyInitializer.class)
+@ContextConfiguration(initializers = StudyServiceTest.ContainerPropertyInitializer.class)
 public class StudyServiceTest {
 	
 	//static Logger LOGGER = LoggerFactory.getLogger(StudyServiceTest.class);
@@ -66,11 +67,11 @@ public class StudyServiceTest {
 	@Autowired
 	StudyRepository studyRepository;
 	
-//	@Autowired
-//	Environment environment;
-//
-//	@Value("${container.port}")
-//	int port;
+	@Autowired
+	Environment environment;
+
+	@Value("${container.port}")
+	int port;
 	
 //	@Container
 //	static GenericContainer<?> postgreSQLContainer = new GenericContainer<>(DockerImageName.parse("postgres"))
@@ -82,13 +83,13 @@ public class StudyServiceTest {
 //			//.waitingFor(Wait.forHttp("/hello"))
 
 	@Container
-	static DockerComposeContainer<?> composeContainer =
-			new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"));
+	static DockerComposeContainer composeContainer =
+			new DockerComposeContainer(new File("src/test/resources/docker-compose.yml"))
+					.withExposedService("study-db", 5432);
 
-//
-//	static {
-//		postgreSQLContainer.start();
-//	}
+	static {
+		composeContainer.start();
+	}
 	
 //	@BeforeAll
 //	static void beforeAll() {
@@ -114,6 +115,9 @@ public class StudyServiceTest {
 	
 	@Test
 	void createNewStudy(@Mock MemberService memberService, @Mock StudyRepository studyRepository) {
+		System.out.println(" ====== ");
+		System.out.println(port);
+
 		StudyService studyService = new StudyService(memberService, studyRepository);
 		assertNotNull(studyService);
 		
@@ -259,13 +263,14 @@ public class StudyServiceTest {
 		assertNotNull(study.getOpenedDateTime());
 		then(memberService).should(times(1)).notify(study);
 	}
-	
-//	static class ContainerPropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-//
-//		@Override
-//		public void initialize(ConfigurableApplicationContext applicationContext) {
-//			TestPropertyValues.of("container.port=" + postgreSQLContainer.getMappedPort(5432)).applyTo(applicationContext);
-//		}
-//
-//	}
+
+	static class ContainerPropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+		@Override
+		public void initialize(ConfigurableApplicationContext context) {
+			TestPropertyValues.of("container.port=" + composeContainer.getServicePort("study-db", 5432))
+					.applyTo(context);
+		}
+	}
+
 }
