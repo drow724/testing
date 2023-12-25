@@ -21,6 +21,8 @@ dependencies {
 	// https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api
 	implementation 'javax.persistence:javax.persistence-api:2.2'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'de.codecentric:chaos-monkey-spring-boot:3.0.2'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.projectlombok:lombok'
 	// https://mvnrepository.com/artifact/junit/junit
