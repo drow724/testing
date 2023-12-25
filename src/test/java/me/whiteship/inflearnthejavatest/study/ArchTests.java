@@ -1,12 +1,9 @@
 package me.whiteship.inflearnthejavatest.study;
 
 import com.tngtech.archunit.junit.AnalyzeClasses;
-import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import me.whiteship.inflearnthejavatest.App;
-import org.junit.jupiter.api.Test;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
@@ -14,7 +11,6 @@ import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.sli
 
 @AnalyzeClasses(packagesOf = App.class)
 public class ArchTests {
-
     @ArchTest
     ArchRule domainPackageRule = classes().that().resideInAPackage("..domain..")
             .should().onlyBeAccessed().byClassesThat()
